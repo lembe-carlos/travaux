@@ -1,0 +1,17 @@
+{
+  "name": "SAHEL BTP — Gestion des matériaux",
+  "short_name": "Sahel BTP",
+  "description": "Gestion des matériaux, du stock, des chantiers et des achats pour Sahel BTP.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0A2540",
+  "theme_color": "#016FBA",
+  "lang": "fr",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
