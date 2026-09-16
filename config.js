@@ -21,6 +21,6 @@
    ========================================================================= */
 
 window.CONFIG = {
-  SUPABASE_URL: "",
-  SUPABASE_ANON_KEY: "",
+  SUPABASE_URL: "mjwxljjgpjxojlfricyb.supabase.co",
+  SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1qd3hsampncGp4b2psZnJpY3liIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkyMDg0OTgsImV4cCI6MjEwNDc4NDQ5OH0.QtMtvhnqPoXFveh1is7Y1eeIFSUjEflEmh2DNNwVJ1c",
 };
