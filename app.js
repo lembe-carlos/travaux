@@ -2698,7 +2698,11 @@ async function boot(){
   if (supabaseClient){
     setInterval(async () => {
       const changed = await syncFromSupabase();
-      if (changed && currentUser()) render();
+      // Ne jamais rafraîchir pendant que la personne remplit un formulaire
+      // (fenêtre modale ouverte) : cela effacerait ce qu'elle est en train
+      // de saisir. La resynchronisation reprendra normalement dès que la
+      // fenêtre sera fermée.
+      if (changed && currentUser() && !state.modal) render();
     }, 20000);
   }
 }
