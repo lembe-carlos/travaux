@@ -1,4 +1,4 @@
-/* =========================================================================
+* =========================================================================
    SAHEL BTP — Application de gestion des matériaux
    HTML / CSS / JavaScript pur — sans framework, sans étape de build.
    Toutes les données sont stockées dans le navigateur (localStorage).
@@ -1088,18 +1088,39 @@ function deleteMaterial(id){
   const m = db.get("materials", id);
   if (confirm('Supprimer le matériau « '+m.name+' » ?')){ db.remove("materials", id); render(); }
 }
+// La bibliothèque QR Code utilisée calcule mal la place occupée par les
+// caractères accentués (bug connu de qrcodejs avec l'UTF-8), ce qui peut
+// déclencher une erreur "code length overflow" même pour un texte
+// raisonnablement court dès qu'il contient des accents français. On
+// neutralise le problème en retirant les accents du contenu du QR Code
+// (le scan reste lisible, juste sans accent) et en gardant une longueur
+// de secours volontairement très courte.
+function stripAccents(str){
+  return String(str||"").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^\x00-\x7F]/g, "");
+}
 function openQrModal(id){
   const m = db.get("materials", id);
   const warehouses = db.list("warehouses");
   const lines = warehouses.map(w=>w.name+": "+getStockLevel(m.id,w.id)+" "+m.unit).join('\n');
-  const payload = m.reference+"\n"+m.name+"\n\nStock par dépôt:\n"+lines+"\n\nTotal: "+totalStockForMaterial(m.id)+" "+m.unit;
+  const payload = stripAccents(m.reference+"\n"+m.name+"\n\nStock par depot:\n"+lines+"\n\nTotal: "+totalStockForMaterial(m.id)+" "+m.unit);
   const body = '<div style="text-align:center"><div id="qr-target" style="display:inline-block;margin-bottom:14px"></div>'+
     '<div class="mono muted" style="font-size:12px;margin-bottom:14px">'+esc(m.reference)+'</div>'+
     '<button class="btn btn-primary" style="width:100%;justify-content:center" onclick="downloadQr(\''+esc(m.reference)+'\')">'+icon("download",14)+' Télécharger le QR Code</button></div>';
   openModal("QR Code — "+m.name, body, 320);
   setTimeout(()=>{
     const target = document.getElementById("qr-target");
-    if (target && window.QRCode) new QRCode(target, { text: payload, width:220, height:220, colorDark:"#0A2540", colorLight:"#ffffff" });
+    if (!target || !window.QRCode) return;
+    try{
+      new QRCode(target, { text: payload, width:220, height:220, colorDark:"#0A2540", colorLight:"#ffffff", correctLevel: QRCode.CorrectLevel.L });
+    }catch(err){
+      // Filet de sécurité : si même ce contenu (déjà sans accents) reste
+      // trop volumineux (énormément de dépôts), on retombe sur le strict
+      // essentiel plutôt que de laisser une erreur bloquer l'affichage.
+      target.innerHTML = "";
+      const shortPayload = stripAccents(m.reference+"\n"+m.name).slice(0,120)+"\nTotal: "+totalStockForMaterial(m.id)+" "+m.unit;
+      try{ new QRCode(target, { text: shortPayload, width:220, height:220, colorDark:"#0A2540", colorLight:"#ffffff", correctLevel: QRCode.CorrectLevel.L }); }
+      catch(err2){ target.innerHTML = '<div class="muted" style="font-size:12px">QR Code impossible à générer pour ce matériau.</div>'; }
+    }
   }, 10);
 }
 function downloadQr(ref){
